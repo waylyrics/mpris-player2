@@ -1,4 +1,4 @@
-# mpris-player
+# mpris-player (WIP!)
 #### A Rust library for creating MPRIS2 media players over D-Bus
 
 
