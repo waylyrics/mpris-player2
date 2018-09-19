@@ -11,4 +11,4 @@ keywords = ["mpris", "dbus"]
 
 [dependencies]
 dbus = "0.6.2"
-dbus-macros = "0.2.3"
+dbus-macros = { git="https://github.com/haecker-felix/dbus-macros-rs" }
