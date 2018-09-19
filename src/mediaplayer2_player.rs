@@ -511,3 +511,4 @@ impl dbus::SignalArgs for OrgMprisMediaPlayer2PlayerSeeked {
         Ok(())
     }
 }
+
