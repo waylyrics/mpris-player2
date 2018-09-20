@@ -1,9 +1,10 @@
 extern crate dbus;
 use dbus::tree;
-use dbus::arg::{Variant, Arg, RefArg};
+use dbus::arg::{Variant, RefArg};
+use std::collections::HashMap;
+
 use mediaplayer2_player::OrgMprisMediaPlayer2Player;
 use mediaplayer2::OrgMprisMediaPlayer2;
-use std::collections::HashMap;
 
 
 #[derive(Debug)]
