@@ -10,7 +10,7 @@ use mediaplayer2_player::*;
 
 use std::sync::Arc;
 use dbus::{Connection, BusType, tree};
-use dbus::tree::{Interface, MTFn};
+use dbus::tree::{Interface, MTFnMut};
 
 
 #[derive(Copy, Clone, Default, Debug)]
@@ -26,17 +26,17 @@ impl tree::DataType for TData {
 
 fn main() {
     let mpris_player = Arc::new(MprisPlayer::new());
-    let f = tree::Factory::new_fn();
+    let f = tree::Factory::new_fnmut();
 
     // Create OrgMprisMediaPlayer2 interface
-    let root_iface: Interface<MTFn<TData>, TData> = org_mpris_media_player2_server(&f, (), |m| {
+    let root_iface: Interface<MTFnMut<TData>, TData> = org_mpris_media_player2_server(&f, (), |m| {
         let a: &Arc<MprisPlayer> = m.path.get_data();
         let b: &MprisPlayer = &a;
         b
     });
 
     // Create OrgMprisMediaPlayer2Player interface
-    let player_iface = org_mpris_media_player2_player_server(&f, (), |m| {
+    let player_iface: Interface<MTFnMut<TData>, TData> = org_mpris_media_player2_player_server(&f, (), |m| {
         let a: &Arc<MprisPlayer> = m.path.get_data();
         let b: &MprisPlayer = &a;
         b
@@ -61,4 +61,3 @@ fn main() {
         c.incoming(1000).next();
     }
 }
-

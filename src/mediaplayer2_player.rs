@@ -187,19 +187,19 @@ impl<'a, C: ::std::ops::Deref<Target=dbus::Connection>> OrgMprisMediaPlayer2Play
     }
 }
 
-pub fn org_mpris_media_player2_player_server<F, T, D>(factory: &tree::Factory<tree::MTFn<D>, D>, data: D::Interface, f: F) -> tree::Interface<tree::MTFn<D>, D>
+pub fn org_mpris_media_player2_player_server<F, T, D>(factory: &tree::Factory<tree::MTFnMut<D>, D>, data: D::Interface, f: F) -> tree::Interface<tree::MTFnMut<D>, D>
 where
     D: tree::DataType,
     D::Method: Default,
     D::Property: Default,
     D::Signal: Default,
     T: OrgMprisMediaPlayer2Player<Err=tree::MethodErr>,
-    F: 'static + for <'z> Fn(& 'z tree::MethodInfo<tree::MTFn<D>, D>) -> & 'z T,
+    F: 'static + for <'z> Fn(& 'z tree::MethodInfo<tree::MTFnMut<D>, D>) -> & 'z T,
 {
     let i = factory.interface("org.mpris.MediaPlayer2.Player", data);
     let f = ::std::sync::Arc::new(f);
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let d = fclone(minfo);
         try!(d.next());
         let rm = minfo.msg.method_return();
@@ -209,7 +209,7 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let d = fclone(minfo);
         try!(d.previous());
         let rm = minfo.msg.method_return();
@@ -219,7 +219,7 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let d = fclone(minfo);
         try!(d.pause());
         let rm = minfo.msg.method_return();
@@ -229,7 +229,7 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let d = fclone(minfo);
         try!(d.play_pause());
         let rm = minfo.msg.method_return();
@@ -239,7 +239,7 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let d = fclone(minfo);
         try!(d.stop());
         let rm = minfo.msg.method_return();
@@ -249,7 +249,7 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let d = fclone(minfo);
         try!(d.play());
         let rm = minfo.msg.method_return();
@@ -259,7 +259,7 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let mut i = minfo.msg.iter_init();
         let offset: i64 = try!(i.read());
         let d = fclone(minfo);
@@ -272,7 +272,7 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let mut i = minfo.msg.iter_init();
         let track_id: dbus::Path = try!(i.read());
         let position: i64 = try!(i.read());
@@ -287,7 +287,7 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let mut i = minfo.msg.iter_init();
         let uri: &str = try!(i.read());
         let d = fclone(minfo);
@@ -513,3 +513,4 @@ impl dbus::SignalArgs for OrgMprisMediaPlayer2PlayerSeeked {
         Ok(())
     }
 }
+	

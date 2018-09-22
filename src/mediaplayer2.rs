@@ -2,6 +2,7 @@
 
 #![allow(dead_code)]
 use dbus as dbus;
+use dbus::arg;
 use dbus::tree;
 
 pub trait OrgMprisMediaPlayer2 {
@@ -78,18 +79,18 @@ impl<'a, C: ::std::ops::Deref<Target=dbus::Connection>> OrgMprisMediaPlayer2 for
     }
 }
 
-pub fn org_mpris_media_player2_server<F, T, D>(factory: &tree::Factory<tree::MTFn<D>, D>, data: D::Interface, f: F) -> tree::Interface<tree::MTFn<D>, D>
+pub fn org_mpris_media_player2_server<F, T, D>(factory: &tree::Factory<tree::MTFnMut<D>, D>, data: D::Interface, f: F) -> tree::Interface<tree::MTFnMut<D>, D>
 where
     D: tree::DataType,
     D::Method: Default,
     D::Property: Default,
     T: OrgMprisMediaPlayer2<Err=tree::MethodErr>,
-    F: 'static + for <'z> Fn(& 'z tree::MethodInfo<tree::MTFn<D>, D>) -> & 'z T,
+    F: 'static + for <'z> Fn(& 'z tree::MethodInfo<tree::MTFnMut<D>, D>) -> & 'z T,
 {
     let i = factory.interface("org.mpris.MediaPlayer2", data);
     let f = ::std::sync::Arc::new(f);
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let d = fclone(minfo);
         try!(d.raise());
         let rm = minfo.msg.method_return();
@@ -99,7 +100,7 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<tree::MTFnMut<D>, D>| {
         let d = fclone(minfo);
         try!(d.quit());
         let rm = minfo.msg.method_return();
@@ -215,3 +216,4 @@ where
     let i = i.add_p(p);
     i
 }
+
