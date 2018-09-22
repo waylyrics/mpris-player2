@@ -1,12 +1,20 @@
 extern crate dbus;
 
 mod mpris_player;
-mod mediaplayer2;
-mod mediaplayer2_player;
+pub use mpris_player::MprisPlayer as MprisPlayer;
 
-use mpris_player::*;
-use mediaplayer2::*;
-use mediaplayer2_player::*;
+mod metadata;
+pub use metadata::Metadata as Metadata;
+
+mod playback_status;
+pub use playback_status::PlaybackStatus as PlaybackStatus;
+
+mod generated;
+pub use generated::mediaplayer2::OrgMprisMediaPlayer2 as OrgMprisMediaPlayer2;
+pub use generated::mediaplayer2_player::OrgMprisMediaPlayer2Player as OrgMprisMediaPlayer2Player;
+use generated::mediaplayer2::org_mpris_media_player2_server;
+use generated::mediaplayer2_player::org_mpris_media_player2_player_server;
+
 
 use std::sync::Arc;
 use dbus::{Connection, BusType, tree};
