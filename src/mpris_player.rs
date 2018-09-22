@@ -1,9 +1,15 @@
 extern crate dbus;
-use dbus::tree;
 use dbus::arg::{Variant, RefArg};
+use dbus::{Connection, BusType, tree};
+use dbus::tree::{Interface, MTFn, Factory};
+
 use std::collections::HashMap;
 use std::cell::Cell;
 use std::cell::RefCell;
+use std::sync::Arc;
+
+use generated::mediaplayer2::org_mpris_media_player2_server;
+use generated::mediaplayer2_player::org_mpris_media_player2_player_server;
 
 use OrgMprisMediaPlayer2Player;
 use OrgMprisMediaPlayer2;
@@ -69,6 +75,43 @@ impl MprisPlayer{
             can_pause: Cell::new(true),
             can_seek: Cell::new(false),
             can_control: Cell::new(true),
+        }
+    }
+
+    pub fn run(mpris_player: MprisPlayer){
+        let factory: Factory<MTFn<TData>, TData> = Factory::new_fn();
+
+        // Create OrgMprisMediaPlayer2 interface
+        let root_iface: Interface<MTFn<TData>, TData> = org_mpris_media_player2_server(&factory, (), |m| {
+            let a: &Arc<MprisPlayer> = m.path.get_data();
+            let b: &MprisPlayer = &a;
+            b
+        });
+
+        // Create OrgMprisMediaPlayer2Player interface
+        let player_iface: Interface<MTFn<TData>, TData> = org_mpris_media_player2_player_server(&factory, (), |m| {
+            let a: &Arc<MprisPlayer> = m.path.get_data();
+            let b: &MprisPlayer = &a;
+            b
+        });
+
+        // Create dbus tree
+        let mut tree = factory.tree(());
+        tree = tree.add(factory.object_path("/org/mpris/MediaPlayer2", Arc::new(mpris_player))
+            .introspectable()
+            .add(root_iface)
+            .add(player_iface)
+        );
+
+        // Create dbus connection
+        let connection = Connection::get_private(BusType::Session).unwrap();
+        connection.register_name("org.mpris.MediaPlayer2.rust", 0).unwrap();
+        tree.set_registered(&connection, true).unwrap();
+        connection.add_handler(tree);
+
+        // Wait for incoming messages
+        loop {
+            connection.incoming(1000).next();
         }
     }
 }
@@ -251,4 +294,15 @@ impl ::std::fmt::Debug for MprisPlayer{
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result  {
         write!(f, "mprisplayer")
     }
+}
+
+#[derive(Copy, Clone, Default, Debug)]
+pub struct TData;
+impl tree::DataType for TData {
+    type Tree = ();
+    type ObjectPath = Arc<MprisPlayer>;
+    type Property = ();
+    type Interface = ();
+    type Method = ();
+    type Signal = ();
 }
