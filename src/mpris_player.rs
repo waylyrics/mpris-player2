@@ -1,3 +1,4 @@
+extern crate glib;
 extern crate dbus;
 use dbus::arg::{Variant, RefArg};
 use dbus::{Connection, BusType, tree};
@@ -19,40 +20,40 @@ use Metadata;
 use PlaybackStatus;
 
 pub struct MprisPlayer{
-    connection: Rc<RefCell<Connection>>,
+    connection: Arc<Connection>,
 
-    // OrgMprisMediaPlayer2
-    can_quit: Cell<bool>,
-    fullscreen: Cell<bool>,
-    can_set_fullscreen: Cell<bool>,
-    can_raise: Cell<bool>,
-    has_track_list: Cell<bool>,
-    identify: String,
-    desktop_entry: String,
-    supported_uri_schemes: Vec<String>,
-    supported_mime_types: Vec<String>,
+    // OrgMprisMediaPlayer2         Type
+    can_quit: Cell<bool>,           // R
+    fullscreen: Cell<bool>,         // R/W
+    can_set_fullscreen: Cell<bool>, // R
+    can_raise: Cell<bool>,          // R
+    has_track_list: Cell<bool>,     // R
+    identify: String,               // R
+    desktop_entry: String,          // R
+    supported_uri_schemes: Vec<String>, // R
+    supported_mime_types: Vec<String>,  // R
 
-    // OrgMprisMediaPlayer2Player
-    playback_status: PlaybackStatus,
-    loop_status: String,
-    rate: Cell<f64>,
-    shuffle: Cell<bool>,
-    pub metadata: RefCell<Metadata>,
-    volume: Cell<f64>,
-    position: Cell<i64>,
-    minimum_rate: Cell<f64>,
-    maximum_rate: Cell<f64>,
-    can_go_next: Cell<bool>,
-    can_go_previous: Cell<bool>,
-    can_play: Cell<bool>,
-    can_pause: Cell<bool>,
-    can_seek: Cell<bool>,
-    can_control: Cell<bool>,
+    // OrgMprisMediaPlayer2Player   Type
+    playback_status: Cell<PlaybackStatus>, // R
+    loop_status: String,            // R/W
+    rate: Cell<f64>,                // R/W
+    shuffle: Cell<bool>,            // R/W
+    metadata: RefCell<Metadata>,    // R
+    volume: Cell<f64>,              // R/W
+    position: Cell<i64>,            // R
+    minimum_rate: Cell<f64>,        // R
+    maximum_rate: Cell<f64>,        // R
+    can_go_next: Cell<bool>,        // R
+    can_go_previous: Cell<bool>,    // R
+    can_play: Cell<bool>,           // R
+    can_pause: Cell<bool>,          // R
+    can_seek: Cell<bool>,           // R
+    can_control: Cell<bool>,        // R
 }
 
 impl MprisPlayer{
-    pub fn new(identifier: String) -> Arc<Self>{
-        let connection = Rc::new(RefCell::new(Connection::get_private(BusType::Session).unwrap()));
+    pub fn new(mpris_name: String, identify: String, desktop_entry: String) -> Arc<Self>{
+        let connection = Arc::new(Connection::get_private(BusType::Session).unwrap());
 
         let mpris_player = Arc::new(MprisPlayer{
             connection,
@@ -62,12 +63,12 @@ impl MprisPlayer{
             can_set_fullscreen: Cell::new(false),
             can_raise: Cell::new(false),
             has_track_list: Cell::new(false),
-            identify: "".to_string(),
-            desktop_entry: "".to_string(),
+            identify,
+            desktop_entry,
             supported_uri_schemes: Vec::new(),
             supported_mime_types: Vec::new(),
 
-            playback_status: PlaybackStatus::Paused,
+            playback_status: Cell::new(PlaybackStatus::Paused),
             loop_status: "".to_string(),
             rate: Cell::new(0_f64),
             shuffle: Cell::new(false),
@@ -109,19 +110,32 @@ impl MprisPlayer{
         );
 
         // Setup dbus connection
-        mpris_player.connection.borrow().register_name(&format!("org.mpris.MediaPlayer2.{}", identifier), 0).unwrap();
-        tree.set_registered(&mpris_player.connection.borrow(), true).unwrap();
-        mpris_player.connection.borrow().add_handler(tree);
+        mpris_player.connection.register_name(&format!("org.mpris.MediaPlayer2.{}", mpris_name), 0).unwrap();
+        tree.set_registered(&mpris_player.connection, true).unwrap();
+        mpris_player.connection.add_handler(tree);
 
         mpris_player
     }
 
     pub fn run(&self){
-        // Wait for incoming messages
-        loop {
-            let connection = self.connection.clone();
-            connection.borrow().incoming(1000).next();
+        let connection = self.connection.clone();
+
+        loop{
+            connection.incoming(1000).next();
         }
+
+        //glib::idle_add(||{
+        //    connection.incoming(1000).next();
+        //    glib::Continue(true)
+        //});
+    }
+
+    pub fn set_playback_status(&self, playback_status: PlaybackStatus){
+        self.playback_status.set(playback_status);
+    }
+
+    pub fn set_metadata(&self, metadata: Metadata){
+        *self.metadata.borrow_mut() = metadata;
     }
 }
 
@@ -219,7 +233,7 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
     }
 
     fn get_playback_status(&self) -> Result<String, Self::Err> {
-        Ok(self.playback_status.value())
+        Ok(self.playback_status.get().value())
     }
 
     fn get_loop_status(&self) -> Result<String, Self::Err> {

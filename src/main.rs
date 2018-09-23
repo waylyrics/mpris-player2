@@ -1,4 +1,5 @@
 extern crate dbus;
+extern crate glib;
 
 mod mpris_player;
 pub use mpris_player::MprisPlayer as MprisPlayer;
@@ -21,8 +22,16 @@ use dbus::tree::{Interface, MTFn};
 use std::sync::Arc;
 
 fn main() {
-    let mpris_player = MprisPlayer::new("rusttest".to_string());
-    mpris_player.metadata.borrow_mut().title = "Hello World".to_string();
+    let mpris_player = MprisPlayer::new("podcasts".to_string(), "GNOME Podcasts".to_string(), "org.gnome.Podcasts.desktop".to_string());
+
+    mpris_player.set_playback_status(PlaybackStatus::Playing);
+
+    let mut metadata = Metadata::new();
+    metadata.artist.push("Rust".to_string());
+    metadata.artist.push("MPRIS Server".to_string());
+    metadata.title = "Is working!".to_string();
+    metadata.art_url = "https://gitlab.gnome.org/uploads/-/system/project/avatar/142/podcasts-logo.png".to_string();
+    mpris_player.set_metadata(metadata);
 
     mpris_player.run();
 }
