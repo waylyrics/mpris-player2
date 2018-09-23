@@ -1,5 +1,6 @@
 extern crate dbus;
 extern crate glib;
+extern crate gtk;
 
 mod mpris_player;
 pub use mpris_player::MprisPlayer as MprisPlayer;
@@ -22,8 +23,11 @@ use dbus::tree::{Interface, MTFn};
 use std::sync::Arc;
 
 fn main() {
-    let mpris_player = MprisPlayer::new("podcasts".to_string(), "GNOME Podcasts".to_string(), "org.gnome.Podcasts.desktop".to_string());
+    let c = glib::MainContext::default();
+    let mainloop = glib::MainLoop::new(Some(&c), false);
+    gtk::init();
 
+    let mpris_player = MprisPlayer::new("podcasts".to_string(), "GNOME Podcasts".to_string(), "org.gnome.Podcasts.desktop".to_string());
     mpris_player.set_playback_status(PlaybackStatus::Playing);
 
     let mut metadata = Metadata::new();
@@ -33,5 +37,5 @@ fn main() {
     metadata.art_url = "https://gitlab.gnome.org/uploads/-/system/project/avatar/142/podcasts-logo.png".to_string();
     mpris_player.set_metadata(metadata);
 
-    mpris_player.run();
+    mainloop.run();
 }

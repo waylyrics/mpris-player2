@@ -1,4 +1,5 @@
 extern crate glib;
+extern crate gtk;
 extern crate dbus;
 use dbus::arg::{Variant, RefArg};
 use dbus::{Connection, BusType, tree};
@@ -114,20 +115,13 @@ impl MprisPlayer{
         tree.set_registered(&mpris_player.connection, true).unwrap();
         mpris_player.connection.add_handler(tree);
 
-        mpris_player
-    }
-
-    pub fn run(&self){
-        let connection = self.connection.clone();
-
-        loop{
+        let connection = mpris_player.connection.clone();
+        gtk::timeout_add(500, move||{
             connection.incoming(1000).next();
-        }
+            glib::Continue(true)
+        });
 
-        //glib::idle_add(||{
-        //    connection.incoming(1000).next();
-        //    glib::Continue(true)
-        //});
+        mpris_player
     }
 
     pub fn set_playback_status(&self, playback_status: PlaybackStatus){

@@ -12,3 +12,4 @@ keywords = ["mpris", "dbus"]
 [dependencies]
 dbus = "0.6.2"
 glib = "0.6.0"
+gtk = "0.5.0"
