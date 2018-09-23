@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::cell::Cell;
 use std::cell::RefCell;
 use std::sync::Arc;
+use std::rc::Rc;
 
 use generated::mediaplayer2::org_mpris_media_player2_server;
 use generated::mediaplayer2_player::org_mpris_media_player2_player_server;
@@ -18,6 +19,8 @@ use Metadata;
 use PlaybackStatus;
 
 pub struct MprisPlayer{
+    connection: Rc<RefCell<Connection>>,
+
     // OrgMprisMediaPlayer2
     can_quit: Cell<bool>,
     fullscreen: Cell<bool>,
@@ -34,7 +37,7 @@ pub struct MprisPlayer{
     loop_status: String,
     rate: Cell<f64>,
     shuffle: Cell<bool>,
-    metadata: RefCell<Metadata>,
+    pub metadata: RefCell<Metadata>,
     volume: Cell<f64>,
     position: Cell<i64>,
     minimum_rate: Cell<f64>,
@@ -48,8 +51,12 @@ pub struct MprisPlayer{
 }
 
 impl MprisPlayer{
-    pub fn new() -> Self{
-        MprisPlayer{
+    pub fn new(identifier: String) -> Arc<Self>{
+        let connection = Rc::new(RefCell::new(Connection::get_private(BusType::Session).unwrap()));
+
+        let mpris_player = Arc::new(MprisPlayer{
+            connection,
+
             can_quit: Cell::new(false),
             fullscreen: Cell::new(false),
             can_set_fullscreen: Cell::new(false),
@@ -75,10 +82,8 @@ impl MprisPlayer{
             can_pause: Cell::new(true),
             can_seek: Cell::new(false),
             can_control: Cell::new(true),
-        }
-    }
+        });
 
-    pub fn run(mpris_player: MprisPlayer){
         let factory: Factory<MTFn<TData>, TData> = Factory::new_fn();
 
         // Create OrgMprisMediaPlayer2 interface
@@ -97,21 +102,25 @@ impl MprisPlayer{
 
         // Create dbus tree
         let mut tree = factory.tree(());
-        tree = tree.add(factory.object_path("/org/mpris/MediaPlayer2", Arc::new(mpris_player))
+        tree = tree.add(factory.object_path("/org/mpris/MediaPlayer2", mpris_player.clone())
             .introspectable()
             .add(root_iface)
             .add(player_iface)
         );
 
-        // Create dbus connection
-        let connection = Connection::get_private(BusType::Session).unwrap();
-        connection.register_name("org.mpris.MediaPlayer2.rust", 0).unwrap();
-        tree.set_registered(&connection, true).unwrap();
-        connection.add_handler(tree);
+        // Setup dbus connection
+        mpris_player.connection.borrow().register_name(&format!("org.mpris.MediaPlayer2.{}", identifier), 0).unwrap();
+        tree.set_registered(&mpris_player.connection.borrow(), true).unwrap();
+        mpris_player.connection.borrow().add_handler(tree);
 
+        mpris_player
+    }
+
+    pub fn run(&self){
         // Wait for incoming messages
         loop {
-            connection.incoming(1000).next();
+            let connection = self.connection.clone();
+            connection.borrow().incoming(1000).next();
         }
     }
 }

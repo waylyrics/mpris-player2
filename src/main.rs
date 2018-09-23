@@ -21,6 +21,8 @@ use dbus::tree::{Interface, MTFn};
 use std::sync::Arc;
 
 fn main() {
-    let mpris_player = MprisPlayer::new();
-    MprisPlayer::run(mpris_player);
+    let mpris_player = MprisPlayer::new("rusttest".to_string());
+    mpris_player.metadata.borrow_mut().title = "Hello World".to_string();
+
+    mpris_player.run();
 }
