@@ -2,17 +2,17 @@ extern crate glib;
 extern crate gtk;
 extern crate dbus;
 use dbus::arg::{Variant, RefArg};
-use dbus::{Connection, BusType, tree};
+use dbus::{Connection, BusType, tree, Path, SignalArgs};
 use dbus::tree::{Interface, MTFn, Factory};
-
 use std::collections::HashMap;
+
 use std::cell::Cell;
 use std::cell::RefCell;
 use std::sync::Arc;
 use std::rc::Rc;
 
 use generated::mediaplayer2::org_mpris_media_player2_server;
-use generated::mediaplayer2_player::org_mpris_media_player2_player_server;
+use generated::mediaplayer2_player::{org_mpris_media_player2_player_server, OrgMprisMediaPlayer2PlayerSeeked, OrgFreedesktopDBusPropertiesPropertiesChanged};
 
 use OrgMprisMediaPlayer2Player;
 use OrgMprisMediaPlayer2;
@@ -22,6 +22,7 @@ use PlaybackStatus;
 
 pub struct MprisPlayer{
     connection: Arc<Connection>,
+    factory: Arc<Factory<MTFn<TData>, TData>>,
 
     // OrgMprisMediaPlayer2         Type
     can_quit: Cell<bool>,           // R
@@ -55,9 +56,11 @@ pub struct MprisPlayer{
 impl MprisPlayer{
     pub fn new(mpris_name: String, identify: String, desktop_entry: String) -> Arc<Self>{
         let connection = Arc::new(Connection::get_private(BusType::Session).unwrap());
+        let factory = Arc::new(Factory::new_fn());
 
         let mpris_player = Arc::new(MprisPlayer{
             connection,
+            factory,
 
             can_quit: Cell::new(false),
             fullscreen: Cell::new(false),
@@ -86,25 +89,23 @@ impl MprisPlayer{
             can_control: Cell::new(true),
         });
 
-        let factory: Factory<MTFn<TData>, TData> = Factory::new_fn();
-
         // Create OrgMprisMediaPlayer2 interface
-        let root_iface: Interface<MTFn<TData>, TData> = org_mpris_media_player2_server(&factory, (), |m| {
+        let root_iface: Interface<MTFn<TData>, TData> = org_mpris_media_player2_server(&mpris_player.factory, (), |m| {
             let a: &Arc<MprisPlayer> = m.path.get_data();
             let b: &MprisPlayer = &a;
             b
         });
 
         // Create OrgMprisMediaPlayer2Player interface
-        let player_iface: Interface<MTFn<TData>, TData> = org_mpris_media_player2_player_server(&factory, (), |m| {
+        let player_iface: Interface<MTFn<TData>, TData> = org_mpris_media_player2_player_server(&mpris_player.factory, (), |m| {
             let a: &Arc<MprisPlayer> = m.path.get_data();
             let b: &MprisPlayer = &a;
             b
         });
 
         // Create dbus tree
-        let mut tree = factory.tree(());
-        tree = tree.add(factory.object_path("/org/mpris/MediaPlayer2", mpris_player.clone())
+        let mut tree = mpris_player.factory.tree(());
+        tree = tree.add(mpris_player.factory.object_path("/org/mpris/MediaPlayer2", mpris_player.clone())
             .introspectable()
             .add(root_iface)
             .add(player_iface)
@@ -124,12 +125,28 @@ impl MprisPlayer{
         mpris_player
     }
 
+    pub fn property_changed<T: 'static>(&self, name: String, value: T) where T: dbus::arg::RefArg {
+        let mut changed_properties = HashMap::new();
+        let x = Box::new(value) as Box<RefArg>;
+        changed_properties.insert(name, Variant(x));
+
+        let signal = OrgFreedesktopDBusPropertiesPropertiesChanged {
+            changed_properties,
+            interface_name: "org.mpris.MediaPlayer2.Player".to_string(),
+            invalidated_properties: Vec::new(),
+        };
+
+        self.connection.send(signal.to_emit_message(&Path::new("/org/mpris/MediaPlayer2").unwrap())).unwrap();
+    }
+
     pub fn set_playback_status(&self, playback_status: PlaybackStatus){
         self.playback_status.set(playback_status);
+        self.property_changed("PlaybackStatus".to_string(), self.get_playback_status().unwrap());
     }
 
     pub fn set_metadata(&self, metadata: Metadata){
         *self.metadata.borrow_mut() = metadata;
+        self.property_changed("Metadata".to_string(), self.get_metadata().unwrap());
     }
 }
 

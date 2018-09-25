@@ -18,7 +18,7 @@ pub use generated::mediaplayer2_player::OrgMprisMediaPlayer2Player as OrgMprisMe
 use generated::mediaplayer2::org_mpris_media_player2_server;
 use generated::mediaplayer2_player::org_mpris_media_player2_player_server;
 
-use dbus::{Connection, BusType, tree};
+use dbus::{Connection, BusType, tree, Message};
 use dbus::tree::{Interface, MTFn};
 use std::sync::Arc;
 
@@ -28,14 +28,38 @@ fn main() {
     gtk::init();
 
     let mpris_player = MprisPlayer::new("podcasts".to_string(), "GNOME Podcasts".to_string(), "org.gnome.Podcasts.desktop".to_string());
-    mpris_player.set_playback_status(PlaybackStatus::Playing);
+    mpris_player.set_playback_status(PlaybackStatus::Stopped);
 
+    // Initial test metadata
     let mut metadata = Metadata::new();
-    metadata.artist.push("Rust".to_string());
-    metadata.artist.push("MPRIS Server".to_string());
-    metadata.title = Some("Is working!".to_string());
+    metadata.artist = Some(vec!["Rust Demo".to_string()]);
+    metadata.title = Some("Test 1!".to_string());
     metadata.art_url = Some("https://gitlab.gnome.org/uploads/-/system/project/avatar/142/podcasts-logo.png".to_string());
     mpris_player.set_metadata(metadata);
+
+    // change something after 4 seconds...
+    let mp = mpris_player.clone();
+    gtk::timeout_add(4000, move||{
+        mp.set_playback_status(PlaybackStatus::Playing);
+        let mut metadata = Metadata::new();
+        metadata.artist = Some(vec!["Rust Demo".to_string()]);
+        metadata.title = Some("4 seconds...!".to_string());
+        metadata.art_url = Some("https://gitlab.gnome.org/uploads/-/system/project/avatar/142/podcasts-logo.png".to_string());
+        mp.set_metadata(metadata);
+        gtk::Continue(false)
+    });
+
+    // change something after 8 seconds......
+    let mp = mpris_player.clone();
+    gtk::timeout_add(8000, move||{
+        mp.set_playback_status(PlaybackStatus::Stopped);
+        let mut metadata = Metadata::new();
+        metadata.artist = Some(vec!["Rust Demo".to_string()]);
+        metadata.title = Some("8 seconds...!".to_string());
+        metadata.art_url = Some("https://gitlab.gnome.org/uploads/-/system/project/avatar/142/podcasts-logo.png".to_string());
+        mp.set_metadata(metadata);
+        gtk::Continue(false)
+    });
 
     mainloop.run();
 }

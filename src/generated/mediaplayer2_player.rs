@@ -511,3 +511,26 @@ impl dbus::SignalArgs for OrgMprisMediaPlayer2PlayerSeeked {
         Ok(())
     }
 }
+
+#[derive(Debug, Default)]
+pub struct OrgFreedesktopDBusPropertiesPropertiesChanged {
+    pub interface_name: String,
+    pub changed_properties: ::std::collections::HashMap<String, arg::Variant<Box<arg::RefArg + 'static>>>,
+    pub invalidated_properties: Vec<String>,
+}
+
+impl dbus::SignalArgs for OrgFreedesktopDBusPropertiesPropertiesChanged {
+    const NAME: &'static str = "PropertiesChanged";
+    const INTERFACE: &'static str = "org.freedesktop.DBus.Properties";
+    fn append(&self, i: &mut arg::IterAppend) {
+        (&self.interface_name as &arg::RefArg).append(i);
+        (&self.changed_properties as &arg::RefArg).append(i);
+        (&self.invalidated_properties as &arg::RefArg).append(i);
+    }
+    fn get(&mut self, i: &mut arg::Iter) -> Result<(), arg::TypeMismatchError> {
+        self.interface_name = try!(i.read());
+        self.changed_properties = try!(i.read());
+        self.invalidated_properties = try!(i.read());
+        Ok(())
+    }
+}
