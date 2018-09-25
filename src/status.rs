@@ -14,3 +14,21 @@ impl PlaybackStatus {
         }
     }
 }
+
+
+#[derive(Debug, Copy, Clone)]
+pub enum LoopStatus{
+    None,
+    Track,
+    Playlist,
+}
+
+impl LoopStatus {
+    pub fn value(&self) -> String {
+        match *self {
+            LoopStatus::None => "None".to_string(),
+            LoopStatus::Track => "Track".to_string(),
+            LoopStatus::Playlist => "Playlist".to_string(),
+        }
+    }
+}

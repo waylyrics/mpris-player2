@@ -19,6 +19,7 @@ use OrgMprisMediaPlayer2;
 
 use Metadata;
 use PlaybackStatus;
+use LoopStatus;
 
 pub struct MprisPlayer{
     connection: Arc<Connection>,
@@ -37,7 +38,7 @@ pub struct MprisPlayer{
 
     // OrgMprisMediaPlayer2Player   Type
     playback_status: Cell<PlaybackStatus>, // R
-    loop_status: String,            // R/W
+    loop_status: Cell<LoopStatus>,  // R/W
     rate: Cell<f64>,                // R/W
     shuffle: Cell<bool>,            // R/W
     metadata: RefCell<Metadata>,    // R
@@ -73,7 +74,7 @@ impl MprisPlayer{
             supported_mime_types: RefCell::new(Vec::new()),
 
             playback_status: Cell::new(PlaybackStatus::Paused),
-            loop_status: "".to_string(),
+            loop_status: Cell::new(LoopStatus::None),
             rate: Cell::new(0_f64),
             shuffle: Cell::new(false),
             metadata: RefCell::new(Metadata::new()),
@@ -180,6 +181,11 @@ impl MprisPlayer{
     pub fn set_playback_status(&self, value: PlaybackStatus){
         self.playback_status.set(value);
         self.property_changed("PlaybackStatus".to_string(), self.get_playback_status().unwrap());
+    }
+
+    pub fn set_loop_status(&self, value: LoopStatus){
+        self.loop_status.set(value);
+        self.property_changed("LoopStatus".to_string(), self.get_loop_status().unwrap());
     }
 
     pub fn set_metadata(&self, metadata: Metadata){
@@ -331,10 +337,15 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
     }
 
     fn get_loop_status(&self) -> Result<String, Self::Err> {
-        Ok(self.loop_status.clone())
+        Ok(self.loop_status.get().value())
     }
 
     fn set_loop_status(&self, value: String) -> Result<(), Self::Err> {
+        match value.as_ref() {
+            "Track" => self.loop_status.set(LoopStatus::Track),
+            "Playlist" => self.loop_status.set(LoopStatus::Playlist),
+            _ => self.loop_status.set(LoopStatus::None),
+        }
         Ok(())
     }
 

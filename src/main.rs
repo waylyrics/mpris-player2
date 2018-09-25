@@ -9,12 +9,13 @@ use mpris_player::TData;
 mod metadata;
 pub use metadata::Metadata as Metadata;
 
-mod playback_status;
-pub use playback_status::PlaybackStatus as PlaybackStatus;
+mod status;
+pub use status::PlaybackStatus as PlaybackStatus;
+pub use status::LoopStatus as LoopStatus;
 
 mod generated;
-pub use generated::mediaplayer2::OrgMprisMediaPlayer2 as OrgMprisMediaPlayer2;
-pub use generated::mediaplayer2_player::OrgMprisMediaPlayer2Player as OrgMprisMediaPlayer2Player;
+use generated::mediaplayer2::OrgMprisMediaPlayer2 as OrgMprisMediaPlayer2;
+use generated::mediaplayer2_player::OrgMprisMediaPlayer2Player as OrgMprisMediaPlayer2Player;
 use generated::mediaplayer2::org_mpris_media_player2_server;
 use generated::mediaplayer2_player::org_mpris_media_player2_player_server;
 
