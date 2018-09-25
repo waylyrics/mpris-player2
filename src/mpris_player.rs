@@ -260,6 +260,7 @@ impl OrgMprisMediaPlayer2 for MprisPlayer {
 
     fn set_fullscreen(&self, value: bool) -> Result<(), Self::Err> {
         self.fullscreen.set(value);
+        self.property_changed("Fullscreen".to_string(), self.get_fullscreen().unwrap());
         Ok(())
     }
 
@@ -325,6 +326,7 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
 
     fn set_position(&self, track_id: dbus::Path, position: i64) -> Result<(), Self::Err> {
         self.position.set(position);
+        self.property_changed("Position".to_string(), self.get_position().unwrap());
         Ok(())
     }
 
@@ -346,6 +348,7 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
             "Playlist" => self.loop_status.set(LoopStatus::Playlist),
             _ => self.loop_status.set(LoopStatus::None),
         }
+        self.property_changed("LoopStatus".to_string(), self.get_loop_status().unwrap());
         Ok(())
     }
 
@@ -355,6 +358,7 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
 
     fn set_rate(&self, value: f64) -> Result<(), Self::Err> {
         self.rate.set(value);
+        self.property_changed("Rate".to_string(), self.get_rate().unwrap());
         Ok(())
     }
 
@@ -364,6 +368,7 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
 
     fn set_shuffle(&self, value: bool) -> Result<(), Self::Err> {
         self.shuffle.set(value);
+        self.property_changed("Shuffle".to_string(), self.get_volume().unwrap());
         Ok(())
     }
 
@@ -378,6 +383,7 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
 
     fn set_volume(&self, value: f64) -> Result<(), Self::Err> {
         self.volume.set(value);
+        self.property_changed("Volume".to_string(), self.get_volume().unwrap());
         Ok(())
     }
 
