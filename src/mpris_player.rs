@@ -139,14 +139,63 @@ impl MprisPlayer{
         self.connection.send(signal.to_emit_message(&Path::new("/org/mpris/MediaPlayer2").unwrap())).unwrap();
     }
 
-    pub fn set_playback_status(&self, playback_status: PlaybackStatus){
-        self.playback_status.set(playback_status);
+    //
+    // OrgMprisMediaPlayer2Player setters...
+    //
+
+    pub fn set_playback_status(&self, value: PlaybackStatus){
+        self.playback_status.set(value);
         self.property_changed("PlaybackStatus".to_string(), self.get_playback_status().unwrap());
     }
 
     pub fn set_metadata(&self, metadata: Metadata){
         *self.metadata.borrow_mut() = metadata;
         self.property_changed("Metadata".to_string(), self.get_metadata().unwrap());
+    }
+
+    pub fn set_position(&self, value: i64){
+        self.position.set(value);
+        self.property_changed("Position".to_string(), self.get_position().unwrap());
+    }
+
+    pub fn set_minimum_rate(&self, value: f64){
+        self.minimum_rate.set(value);
+        self.property_changed("MinimumRate".to_string(), self.get_minimum_rate().unwrap());
+    }
+
+    pub fn set_maximum_rate(&self, value: f64){
+        self.maximum_rate.set(value);
+        self.property_changed("MaximumRate".to_string(), self.get_maximum_rate().unwrap());
+    }
+
+    pub fn set_can_go_next(&self, value: bool){
+        self.can_go_next.set(value);
+        self.property_changed("CanGoNext".to_string(), self.get_can_go_next().unwrap());
+    }
+
+    pub fn set_can_go_previous(&self, value: bool){
+        self.can_go_previous.set(value);
+        self.property_changed("CanPrevious".to_string(), self.get_can_go_previous().unwrap());
+    }
+
+    pub fn set_can_play(&self, value: bool){
+        self.can_play.set(value);
+        self.property_changed("CanPlay".to_string(), self.get_can_play().unwrap());
+    }
+
+    pub fn set_can_pause(&self, value: bool){
+        self.can_pause.set(value);
+        self.property_changed("CanPause".to_string(), self.get_can_pause().unwrap());
+    }
+
+    pub fn set_can_seek(&self, value: bool){
+        self.can_seek.set(value);
+        self.property_changed("CanSeek".to_string(), self.get_can_seek().unwrap());
+    }
+
+    pub fn set_can_control(&self, value: bool){
+        self.can_control.set(value);
+        self.property_changed("CanControl".to_string(), self.get_can_control().unwrap());
     }
 }
 
