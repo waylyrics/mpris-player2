@@ -32,8 +32,8 @@ pub struct MprisPlayer{
     has_track_list: Cell<bool>,     // R
     identify: String,               // R
     desktop_entry: String,          // R
-    supported_uri_schemes: Vec<String>, // R
-    supported_mime_types: Vec<String>,  // R
+    supported_uri_schemes: RefCell<Vec<String>>, // R
+    supported_mime_types: RefCell<Vec<String>>,  // R
 
     // OrgMprisMediaPlayer2Player   Type
     playback_status: Cell<PlaybackStatus>, // R
@@ -69,8 +69,8 @@ impl MprisPlayer{
             has_track_list: Cell::new(false),
             identify,
             desktop_entry,
-            supported_uri_schemes: Vec::new(),
-            supported_mime_types: Vec::new(),
+            supported_uri_schemes: RefCell::new(Vec::new()),
+            supported_mime_types: RefCell::new(Vec::new()),
 
             playback_status: Cell::new(PlaybackStatus::Paused),
             loop_status: "".to_string(),
@@ -137,6 +137,40 @@ impl MprisPlayer{
         };
 
         self.connection.send(signal.to_emit_message(&Path::new("/org/mpris/MediaPlayer2").unwrap())).unwrap();
+    }
+
+    //
+    // OrgMprisMediaPlayer2 setters...
+    //
+
+    pub fn set_supported_mime_types(&self, value: Vec<String>){
+        *self.supported_mime_types.borrow_mut() = value;
+        self.property_changed("SupportedMimeTypes".to_string(), self.get_supported_mime_types().unwrap());
+    }
+
+    pub fn set_supported_uri_schemes(&self, value: Vec<String>){
+        *self.supported_uri_schemes.borrow_mut() = value;
+        self.property_changed("SupportedUriSchemes".to_string(), self.get_supported_uri_schemes().unwrap());
+    }
+
+    pub fn set_can_quit(&self, value: bool){
+        self.can_quit.set(value);
+        self.property_changed("CanQuit".to_string(), self.get_can_quit().unwrap());
+    }
+
+    pub fn set_can_raise(&self, value: bool){
+        self.can_raise.set(value);
+        self.property_changed("CanRaise".to_string(), self.get_can_raise().unwrap());
+    }
+
+    pub fn set_can_set_fullscreen(&self, value: bool){
+        self.can_set_fullscreen.set(value);
+        self.property_changed("CanSetFullscreen".to_string(), self.get_can_set_fullscreen().unwrap());
+    }
+
+    pub fn set_has_track_list(&self, value: bool){
+        self.has_track_list.set(value);
+        self.property_changed("HasTrackList".to_string(), self.get_has_track_list().unwrap());
     }
 
     //
@@ -244,11 +278,11 @@ impl OrgMprisMediaPlayer2 for MprisPlayer {
     }
 
     fn get_supported_uri_schemes(&self) -> Result<Vec<String>, Self::Err> {
-        Ok(self.supported_uri_schemes.clone())
+        Ok(self.supported_uri_schemes.borrow().to_vec())
     }
 
     fn get_supported_mime_types(&self) -> Result<Vec<String>, Self::Err> {
-        Ok(self.supported_mime_types.clone())
+        Ok(self.supported_mime_types.borrow().to_vec())
     }
 }
 
