@@ -117,8 +117,8 @@ impl MprisPlayer{
         mpris_player.connection.add_handler(tree);
 
         let connection = mpris_player.connection.clone();
-        gtk::timeout_add(500, move||{
-            connection.incoming(1000).next();
+        gtk::timeout_add(1000, move||{
+            connection.incoming(50).next();
             glib::Continue(true)
         });
 
