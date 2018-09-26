@@ -9,10 +9,9 @@ use std::collections::HashMap;
 use std::cell::Cell;
 use std::cell::RefCell;
 use std::sync::Arc;
-use std::rc::Rc;
 
 use generated::mediaplayer2::org_mpris_media_player2_server;
-use generated::mediaplayer2_player::{org_mpris_media_player2_player_server, OrgMprisMediaPlayer2PlayerSeeked, OrgFreedesktopDBusPropertiesPropertiesChanged};
+use generated::mediaplayer2_player::{org_mpris_media_player2_player_server, OrgFreedesktopDBusPropertiesPropertiesChanged};
 
 use OrgMprisMediaPlayer2Player;
 use OrgMprisMediaPlayer2;
@@ -324,7 +323,7 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
         Ok(())
     }
 
-    fn set_position(&self, track_id: dbus::Path, position: i64) -> Result<(), Self::Err> {
+    fn set_position(&self, _track_id: dbus::Path, position: i64) -> Result<(), Self::Err> {
         self.position.set(position);
         self.property_changed("Position".to_string(), self.get_position().unwrap());
         Ok(())
