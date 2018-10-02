@@ -13,5 +13,5 @@ pub use status::PlaybackStatus as PlaybackStatus;
 pub use status::LoopStatus as LoopStatus;
 
 mod generated;
-use generated::mediaplayer2::OrgMprisMediaPlayer2 as OrgMprisMediaPlayer2;
-use generated::mediaplayer2_player::OrgMprisMediaPlayer2Player as OrgMprisMediaPlayer2Player;
+pub use generated::mediaplayer2::OrgMprisMediaPlayer2 as OrgMprisMediaPlayer2;
+pub use generated::mediaplayer2_player::OrgMprisMediaPlayer2Player as OrgMprisMediaPlayer2Player;
