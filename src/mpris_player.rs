@@ -6,6 +6,7 @@ use dbus::{Connection, BusType, tree, Path, SignalArgs};
 use dbus::tree::{Interface, MTFn, Factory};
 use std::collections::HashMap;
 
+use std::rc::Rc;
 use std::cell::Cell;
 use std::cell::RefCell;
 use std::sync::Arc;
@@ -51,6 +52,23 @@ pub struct MprisPlayer{
     can_pause: Cell<bool>,          // R
     can_seek: Cell<bool>,           // R
     can_control: Cell<bool>,        // R
+
+    // Callbacks
+    raise_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
+    quit_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
+    next_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
+    previous_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
+    pause_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
+    play_pause_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
+    stop_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
+    play_cb: RefCell<Vec<Rc<RefCell<FnMut()>>>>,
+    seek_cb: RefCell<Vec<Rc<RefCell<FnMut(i64)>>>>,
+    open_uri_cb: RefCell<Vec<Rc<RefCell<FnMut(&str)>>>>,
+    fullscreen_cb: RefCell<Vec<Rc<RefCell<FnMut(bool)>>>>,
+    loop_status_cb: RefCell<Vec<Rc<RefCell<FnMut(LoopStatus)>>>>,
+    rate_cb: RefCell<Vec<Rc<RefCell<FnMut(f64)>>>>,
+    shuffle_cb: RefCell<Vec<Rc<RefCell<FnMut(bool)>>>>,
+    volume_cb: RefCell<Vec<Rc<RefCell<FnMut(f64)>>>>,
 }
 
 impl MprisPlayer{
@@ -62,10 +80,10 @@ impl MprisPlayer{
             connection,
             factory,
 
-            can_quit: Cell::new(false),
+            can_quit: Cell::new(true),
             fullscreen: Cell::new(false),
             can_set_fullscreen: Cell::new(false),
-            can_raise: Cell::new(false),
+            can_raise: Cell::new(true),
             has_track_list: Cell::new(false),
             identify,
             desktop_entry,
@@ -87,6 +105,22 @@ impl MprisPlayer{
             can_pause: Cell::new(true),
             can_seek: Cell::new(false),
             can_control: Cell::new(true),
+
+            raise_cb: RefCell::new(Vec::new()),
+            quit_cb: RefCell::new(Vec::new()),
+            next_cb: RefCell::new(Vec::new()),
+            previous_cb: RefCell::new(Vec::new()),
+            pause_cb: RefCell::new(Vec::new()),
+            play_pause_cb: RefCell::new(Vec::new()),
+            stop_cb: RefCell::new(Vec::new()),
+            play_cb: RefCell::new(Vec::new()),
+            seek_cb: RefCell::new(Vec::new()),
+            open_uri_cb: RefCell::new(Vec::new()),
+            fullscreen_cb: RefCell::new(Vec::new()),
+            loop_status_cb: RefCell::new(Vec::new()),
+            rate_cb: RefCell::new(Vec::new()),
+            shuffle_cb: RefCell::new(Vec::new()),
+            volume_cb: RefCell::new(Vec::new()),
         });
 
         // Create OrgMprisMediaPlayer2 interface
@@ -139,6 +173,7 @@ impl MprisPlayer{
         self.connection.send(signal.to_emit_message(&Path::new("/org/mpris/MediaPlayer2").unwrap())).unwrap();
     }
 
+
     //
     // OrgMprisMediaPlayer2 setters...
     //
@@ -172,6 +207,7 @@ impl MprisPlayer{
         self.has_track_list.set(value);
         self.property_changed("HasTrackList".to_string(), self.get_has_track_list().unwrap());
     }
+
 
     //
     // OrgMprisMediaPlayer2Player setters...
@@ -236,16 +272,102 @@ impl MprisPlayer{
         self.can_control.set(value);
         self.property_changed("CanControl".to_string(), self.get_can_control().unwrap());
     }
+
+
+    //
+    // Callbacks
+    //
+
+    pub fn connect_raise<F: FnMut()+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.raise_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_quit<F: FnMut()+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.quit_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_next<F: FnMut()+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.next_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_previous<F: FnMut()+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.previous_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_pause<F: FnMut()+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.pause_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_play_pause<F: FnMut()+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.play_pause_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_stop<F: FnMut()+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.stop_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_play<F: FnMut()+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.play_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_seek<F: FnMut(i64)+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.seek_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_open_uri<F: FnMut(&str)+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.open_uri_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_fullscreen<F: FnMut(bool)+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.fullscreen_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_loop_status<F: FnMut(LoopStatus)+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.loop_status_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_rate<F: FnMut(f64)+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.rate_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_shuffle<F: FnMut(bool)+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.shuffle_cb.borrow_mut().push(cell);
+    }
+
+    pub fn connect_volume<F: FnMut(f64)+'static>(&self, callback: F) {
+        let cell = Rc::new(RefCell::new(callback));
+        self.volume_cb.borrow_mut().push(cell);
+    }
 }
 
 impl OrgMprisMediaPlayer2 for MprisPlayer {
     type Err = tree::MethodErr;
 
     fn raise(&self) -> Result<(), Self::Err> {
+        for callback in self.raise_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)();
+        }
         Ok(())
     }
 
     fn quit(&self) -> Result<(), Self::Err> {
+        for callback in self.quit_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)();
+        }
         Ok(())
     }
 
@@ -260,6 +382,9 @@ impl OrgMprisMediaPlayer2 for MprisPlayer {
     fn set_fullscreen(&self, value: bool) -> Result<(), Self::Err> {
         self.fullscreen.set(value);
         self.property_changed("Fullscreen".to_string(), self.get_fullscreen().unwrap());
+        for callback in self.fullscreen_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)(value);
+        }
         Ok(())
     }
 
@@ -296,30 +421,51 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
     type Err = tree::MethodErr;
 
     fn next(&self) -> Result<(), Self::Err> {
+        for callback in self.next_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)();
+        }
         Ok(())
     }
 
     fn previous(&self) -> Result<(), Self::Err> {
+        for callback in self.previous_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)();
+        }
         Ok(())
     }
 
     fn pause(&self) -> Result<(), Self::Err> {
+        for callback in self.pause_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)();
+        }
         Ok(())
     }
 
     fn play_pause(&self) -> Result<(), Self::Err> {
+        for callback in self.play_pause_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)();
+        }
         Ok(())
     }
 
     fn stop(&self) -> Result<(), Self::Err> {
+        for callback in self.stop_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)();
+        }
         Ok(())
     }
 
     fn play(&self) -> Result<(), Self::Err> {
+        for callback in self.play_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)();
+        }
         Ok(())
     }
 
     fn seek(&self, offset: i64) -> Result<(), Self::Err> {
+        for callback in self.seek_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)(offset);
+        }
         Ok(())
     }
 
@@ -330,6 +476,9 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
     }
 
     fn open_uri(&self, uri: &str) -> Result<(), Self::Err> {
+        for callback in self.open_uri_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)(uri);
+        }
         Ok(())
     }
 
@@ -342,12 +491,16 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
     }
 
     fn set_loop_status(&self, value: String) -> Result<(), Self::Err> {
-        match value.as_ref() {
-            "Track" => self.loop_status.set(LoopStatus::Track),
-            "Playlist" => self.loop_status.set(LoopStatus::Playlist),
-            _ => self.loop_status.set(LoopStatus::None),
-        }
+        let ls = match value.as_ref() {
+            "Track" => LoopStatus::Track,
+            "Playlist" => LoopStatus::Playlist,
+            _ => LoopStatus::None,
+        };
+        self.loop_status.set(ls.clone());
         self.property_changed("LoopStatus".to_string(), self.get_loop_status().unwrap());
+        for callback in self.loop_status_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)(ls);
+        }
         Ok(())
     }
 
@@ -358,6 +511,9 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
     fn set_rate(&self, value: f64) -> Result<(), Self::Err> {
         self.rate.set(value);
         self.property_changed("Rate".to_string(), self.get_rate().unwrap());
+        for callback in self.rate_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)(value);
+        }
         Ok(())
     }
 
@@ -368,6 +524,9 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
     fn set_shuffle(&self, value: bool) -> Result<(), Self::Err> {
         self.shuffle.set(value);
         self.property_changed("Shuffle".to_string(), self.get_volume().unwrap());
+        for callback in self.shuffle_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)(value);
+        }
         Ok(())
     }
 
@@ -383,6 +542,9 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
     fn set_volume(&self, value: f64) -> Result<(), Self::Err> {
         self.volume.set(value);
         self.property_changed("Volume".to_string(), self.get_volume().unwrap());
+        for callback in self.volume_cb.borrow_mut().iter() {
+            let mut closure = callback.borrow_mut(); (&mut *closure)(value);
+        }
         Ok(())
     }
 
