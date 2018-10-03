@@ -80,10 +80,10 @@ impl MprisPlayer{
             connection,
             factory,
 
-            can_quit: Cell::new(true),
+            can_quit: Cell::new(false),
             fullscreen: Cell::new(false),
             can_set_fullscreen: Cell::new(false),
-            can_raise: Cell::new(true),
+            can_raise: Cell::new(false),
             has_track_list: Cell::new(false),
             identify,
             desktop_entry,
@@ -151,8 +151,8 @@ impl MprisPlayer{
         mpris_player.connection.add_handler(tree);
 
         let connection = mpris_player.connection.clone();
-        gtk::timeout_add(1000, move||{
-            connection.incoming(50).next();
+        gtk::timeout_add(250, move||{
+            connection.incoming(5).next();
             glib::Continue(true)
         });
 
