@@ -1,6 +1,6 @@
 [package]
 name = "mpris-player"
-version = "0.1.0"
+version = "0.2.0"
 description = "A library for creating MPRIS2 media players over D-Bus"
 authors = ["Felix Häcker <haecker.felix1207@gmail.com>"]
 license = "GPL-3.0+"
@@ -10,6 +10,6 @@ keywords = ["mpris", "dbus"]
 
 
 [dependencies]
-dbus = "0.6.2"
-glib = "0.6.0"
-gtk = "0.5.0"
+dbus = "0.6.4"
+glib = "0.7.0"
+gtk = "0.6.0"
