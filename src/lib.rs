@@ -1,6 +1,5 @@
 extern crate dbus;
 extern crate glib;
-extern crate gtk;
 
 mod mpris_player;
 pub use mpris_player::MprisPlayer as MprisPlayer;
