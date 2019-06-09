@@ -11,4 +11,5 @@ keywords = ["mpris", "dbus"]
 
 [dependencies]
 dbus = "0.6.4"
-glib = "0.7.0"
+glib = { git="https://github.com/gtk-rs/glib" }
+
