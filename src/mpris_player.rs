@@ -172,6 +172,16 @@ impl MprisPlayer{
         self.connection.send(signal.to_emit_message(&Path::new("/org/mpris/MediaPlayer2").unwrap())).unwrap();
     }
 
+    pub fn seeked(&self, value: i64) {
+        self.position.set(value);
+        let signal = dbus::Message::signal(
+            &Path::new("/org/mpris/MediaPlayer2").unwrap(),
+            &dbus::Interface::new("org.mpris.MediaPlayer2.Player").unwrap(),
+            &dbus::Member::new("Seeked").unwrap(),
+        )
+        .append(value);
+        self.connection.send(signal).unwrap();
+    }
 
     //
     // OrgMprisMediaPlayer2 setters...
