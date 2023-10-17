@@ -1,6 +1,6 @@
 [package]
 name = "mpris-player2"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
 description = "A library for creating MPRIS2 media players over D-Bus"
 authors = ["poly000", "Felix Häcker <haeckerfelix@gnome.org>"]

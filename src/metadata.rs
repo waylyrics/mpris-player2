@@ -12,6 +12,7 @@ pub struct Metadata{
     pub disc_number: Option<i32>,
     pub genre: Option<Vec<String>>,
     pub title: Option<String>,
+    pub track_id: Option<String>,
     pub track_number: Option<i32>,
     pub url: Option<String>,
 }
@@ -28,6 +29,7 @@ impl Metadata{
             disc_number: None,
             genre: None,
             title: None,
+            track_id: None,
             track_number: None,
             url: None,
         }
@@ -79,6 +81,11 @@ impl Metadata{
         if self.title.is_some() {
             let x = Box::new(self.clone().title.unwrap().clone()) as Box<dyn RefArg>;
             metadata.insert("xesam:title".to_string(), Variant(x));
+        }
+        
+        if self.track_id.is_some() {
+            let track_id = self.track_id.clone().unwrap();
+            metadata.insert("mpris:trackid".to_string(), Variant(Box::new(track_id)));
         }
 
         if self.track_number.is_some() {
