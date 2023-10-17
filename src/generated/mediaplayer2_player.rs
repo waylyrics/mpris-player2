@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use dbus;
 use dbus::arg;
-use dbus::tree;
+use dbus_tree as tree;
 
 pub trait OrgMprisMediaPlayer2Player {
     type Err;
@@ -40,8 +40,8 @@ pub trait OrgMprisMediaPlayer2Player {
     fn get_can_control(&self) -> Result<bool, Self::Err>;
 }
 
-impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Player
-    for dbus::ConnPath<'a, C>
+impl<'a, C: ::std::ops::Deref<Target = dbus::blocking::Connection>> OrgMprisMediaPlayer2Player
+    for dbus::ffidisp::ConnPath<'a, C>
 {
     type Err = dbus::Error;
 
@@ -146,7 +146,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_playback_status(&self) -> Result<String, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "PlaybackStatus",
@@ -154,7 +154,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_loop_status(&self) -> Result<String, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "LoopStatus",
@@ -162,7 +162,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_rate(&self) -> Result<f64, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "Rate",
@@ -170,7 +170,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_shuffle(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "Shuffle",
@@ -183,7 +183,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
         ::std::collections::HashMap<String, arg::Variant<Box<dyn arg::RefArg + 'static>>>,
         Self::Err,
     > {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "Metadata",
@@ -191,7 +191,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_volume(&self) -> Result<f64, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "Volume",
@@ -199,7 +199,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_position(&self) -> Result<i64, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "Position",
@@ -207,7 +207,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_minimum_rate(&self) -> Result<f64, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "MinimumRate",
@@ -215,7 +215,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_maximum_rate(&self) -> Result<f64, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "MaximumRate",
@@ -223,7 +223,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_can_go_next(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "CanGoNext",
@@ -231,7 +231,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_can_go_previous(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "CanGoPrevious",
@@ -239,7 +239,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_can_play(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "CanPlay",
@@ -247,7 +247,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_can_pause(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "CanPause",
@@ -255,7 +255,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_can_seek(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "CanSeek",
@@ -263,7 +263,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn get_can_control(&self) -> Result<bool, Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::get(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "CanControl",
@@ -271,7 +271,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn set_loop_status(&self, value: String) -> Result<(), Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::set(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "LoopStatus",
@@ -280,7 +280,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn set_rate(&self, value: f64) -> Result<(), Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::set(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "Rate",
@@ -289,7 +289,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn set_shuffle(&self, value: bool) -> Result<(), Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::set(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "Shuffle",
@@ -298,7 +298,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     }
 
     fn set_volume(&self, value: f64) -> Result<(), Self::Err> {
-        <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::set(
+        <Self as dbus::ffidisp::stdintf::org_freedesktop_dbus::Properties>::set(
             &self,
             "org.mpris.MediaPlayer2.Player",
             "Volume",
@@ -630,15 +630,26 @@ pub struct OrgMprisMediaPlayer2PlayerSeeked {
     pub position: i64,
 }
 
-impl dbus::SignalArgs for OrgMprisMediaPlayer2PlayerSeeked {
+impl dbus::message::SignalArgs for OrgMprisMediaPlayer2PlayerSeeked {
     const NAME: &'static str = "Seeked";
     const INTERFACE: &'static str = "org.mpris.MediaPlayer2.Player";
-    fn append(&self, i: &mut arg::IterAppend) {
+}
+
+impl dbus::arg::Append for OrgMprisMediaPlayer2PlayerSeeked {
+    fn append(self, i: &mut arg::IterAppend) {
         (&self.position as &dyn arg::RefArg).append(i);
     }
-    fn get(&mut self, i: &mut arg::Iter) -> Result<(), arg::TypeMismatchError> {
-        self.position = (i.read())?;
-        Ok(())
+
+    fn append_by_ref(&self, i: &mut arg::IterAppend) {
+        (&self.position as &dyn arg::RefArg).append(i);
+    }
+}
+
+impl<'a> dbus::arg::Get<'a> for OrgMprisMediaPlayer2PlayerSeeked {
+    fn get(i: &mut arg::Iter) -> Option<Self> {
+        let mut r = Self::default();
+        r.position = (i.read()).ok()?;
+        Some(r)
     }
 }
 
@@ -650,18 +661,32 @@ pub struct OrgFreedesktopDBusPropertiesPropertiesChanged {
     pub invalidated_properties: Vec<String>,
 }
 
-impl dbus::SignalArgs for OrgFreedesktopDBusPropertiesPropertiesChanged {
+impl dbus::message::SignalArgs for OrgFreedesktopDBusPropertiesPropertiesChanged {
     const NAME: &'static str = "PropertiesChanged";
     const INTERFACE: &'static str = "org.freedesktop.DBus.Properties";
-    fn append(&self, i: &mut arg::IterAppend) {
+}
+impl dbus::arg::Append for OrgFreedesktopDBusPropertiesPropertiesChanged 
+{
+    fn append(self, i: &mut arg::IterAppend) {
         (&self.interface_name as &dyn arg::RefArg).append(i);
         (&self.changed_properties as &dyn arg::RefArg).append(i);
         (&self.invalidated_properties as &dyn arg::RefArg).append(i);
     }
-    fn get(&mut self, i: &mut arg::Iter) -> Result<(), arg::TypeMismatchError> {
-        self.interface_name = (i.read())?;
-        self.changed_properties = (i.read())?;
-        self.invalidated_properties = (i.read())?;
-        Ok(())
+
+    fn append_by_ref(&self, i: &mut arg::IterAppend) {
+        (&self.interface_name as &dyn arg::RefArg).append(i);
+        (&self.changed_properties as &dyn arg::RefArg).append(i);
+        (&self.invalidated_properties as &dyn arg::RefArg).append(i);
+    }
+}
+
+impl<'a> dbus::arg::Get<'a> for OrgFreedesktopDBusPropertiesPropertiesChanged 
+{
+    fn get(i: &mut arg::Iter) -> Option<OrgFreedesktopDBusPropertiesPropertiesChanged> {
+        let mut r = Self::default();
+        r.interface_name = (i.read()).ok()?;
+        r.changed_properties = (i.read()).ok()?;
+        r.invalidated_properties = (i.read()).ok()?;
+        Some(r)
     }
 }
