@@ -240,7 +240,6 @@ impl MprisPlayer{
 
     pub fn set_position(&self, value: i64){
         self.position.set(value);
-        self.property_changed("Position".to_string(), self.get_position().unwrap());
     }
 
     pub fn set_minimum_rate(&self, value: f64){
