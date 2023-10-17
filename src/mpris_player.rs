@@ -9,6 +9,7 @@ use std::rc::Rc;
 use std::cell::Cell;
 use std::cell::RefCell;
 use std::sync::Arc;
+use std::time::Duration;
 
 use generated::mediaplayer2::org_mpris_media_player2_server;
 use generated::mediaplayer2_player::{org_mpris_media_player2_player_server, OrgFreedesktopDBusPropertiesPropertiesChanged};
@@ -150,9 +151,9 @@ impl MprisPlayer{
         mpris_player.connection.add_handler(tree);
 
         let connection = mpris_player.connection.clone();
-        glib::source::timeout_add_local(250, move||{
+        glib::source::timeout_add_local(Duration::from_millis(250), move||{
             connection.incoming(5).next();
-            glib::Continue(true)
+            glib::ControlFlow::Continue
         });
 
         mpris_player
