@@ -2,15 +2,15 @@ extern crate dbus;
 extern crate glib;
 
 mod mpris_player;
-pub use mpris_player::MprisPlayer as MprisPlayer;
+pub use crate::mpris_player::MprisPlayer as MprisPlayer;
 
 mod metadata;
-pub use metadata::Metadata as Metadata;
+pub use crate::metadata::Metadata as Metadata;
 
 mod status;
-pub use status::PlaybackStatus as PlaybackStatus;
-pub use status::LoopStatus as LoopStatus;
+pub use crate::status::PlaybackStatus as PlaybackStatus;
+pub use crate::status::LoopStatus as LoopStatus;
 
 mod generated;
-pub use generated::mediaplayer2::OrgMprisMediaPlayer2 as OrgMprisMediaPlayer2;
-pub use generated::mediaplayer2_player::OrgMprisMediaPlayer2Player as OrgMprisMediaPlayer2Player;
+pub use crate::generated::mediaplayer2::OrgMprisMediaPlayer2 as OrgMprisMediaPlayer2;
+pub use crate::generated::mediaplayer2_player::OrgMprisMediaPlayer2Player as OrgMprisMediaPlayer2Player;
